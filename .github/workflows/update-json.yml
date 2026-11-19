@@ -15,15 +15,19 @@ permissions:
 jobs:
   build-json:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Checkout latest repository
         uses: actions/checkout@v4
         with:
+          ref: main
+          fetch-depth: 0
           persist-credentials: true
 
       - name: Generate wallpapers.json
         run: |
           BASE_URL="https://raw.githubusercontent.com/sarthakchoyal/tv-wallpapers/main"
+
           python3 -c '
           import os, json, urllib.parse
 
@@ -41,14 +45,19 @@ jobs:
               json.dump(items, out, indent=2)
           '
 
-      
-      - name: Commit updated JSON
+      - name: Commit and push JSON
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add wallpapers.json
-          git diff --staged --quiet || git commit -m "Update wallpapers.json"
+
+          if git diff --staged --quiet; then
+            echo "No changes to wallpapers.json"
+            exit 0
+          fi
+
+          git commit -m "Update wallpapers.json"
 
           git pull --rebase origin main
-          git push origin main
+          git push origin HEAD:main
