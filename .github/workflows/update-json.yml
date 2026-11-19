@@ -1,3 +1,4 @@
+
 name: Auto-update wallpapers.json
 
 on:
@@ -8,12 +9,17 @@ on:
       - 'wallpapers.json'
       - '.github/**'
 
+permissions:
+  contents: write
+
 jobs:
   build-json:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
       - name: Generate wallpapers.json
         run: |
